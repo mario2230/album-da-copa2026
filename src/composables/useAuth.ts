@@ -15,7 +15,8 @@ const usuarios = ref<Usuario[]>([
   }
 ])
 
-const usuarioLogado =
+// EXPORTAR para o router usar
+export const usuarioLogado =
   ref<Usuario | null>(null)
 
 export function useAuth() {
