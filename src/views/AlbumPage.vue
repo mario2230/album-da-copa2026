@@ -1,12 +1,8 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>
-          Álbum da Copa
-        </ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <AppHeader
+    titulo="Álbum da Copa"
+    />
 
     <ion-content class="ion-padding">
 
@@ -71,9 +67,6 @@
 <script setup lang="ts">
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonCard,
   IonCardHeader,

@@ -1,12 +1,8 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>
-          Cadastro
-        </ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <AppHeader
+    titulo="Cadastro"
+    />
 
     <ion-content class="ion-padding">
 
@@ -39,9 +35,6 @@ import { useRouter } from "vue-router"
 
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonButton,
   IonText

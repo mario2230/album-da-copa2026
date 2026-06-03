@@ -1,12 +1,8 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>
-          Login
-        </ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <AppHeader
+    titulo="Login"
+    />
 
     <ion-content class="ion-padding">
 
@@ -47,9 +43,6 @@ import { useRouter } from "vue-router"
 
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonButton,
   IonText

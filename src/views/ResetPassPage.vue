@@ -1,10 +1,8 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Reset Password</ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <AppHeader
+    titulo="Resetar Senha"
+    />
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>

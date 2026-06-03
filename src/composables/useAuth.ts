@@ -1,9 +1,9 @@
-import { ref } from "vue"
+import { ref } from "vue";
 
 interface Usuario {
-  nome: string
-  email: string
-  senha: string
+  nome: string;
+  email: string;
+  senha: string;
 }
 
 // Estado global
@@ -11,136 +11,96 @@ const usuarios = ref<Usuario[]>([
   {
     nome: "Administrador",
     email: "admin@email.com",
-    senha: "123456"
-  }
-])
+    senha: "123456",
+  },
+]);
 
 // EXPORTAR para o router usar
-export const usuarioLogado =
-  ref<Usuario | null>(null)
+export const usuarioLogado = ref<Usuario | null>(null);
 
 export function useAuth() {
-
-  function login(
-    email: string,
-    senha: string
-  ) {
-
-    const usuario =
-      usuarios.value.find(
-        user =>
-          user.email.trim()
-            .toLowerCase() ===
-          email.trim()
-            .toLowerCase()
-
-          &&
-          user.senha === senha
-      )
+  function login(email: string, senha: string) {
+    const usuario = usuarios.value.find(
+      (user) =>
+        user.email.trim().toLowerCase() === email.trim().toLowerCase() &&
+        user.senha === senha,
+    );
 
     if (usuario) {
-
-      usuarioLogado.value =
-        usuario
+      usuarioLogado.value = usuario;
 
       return {
         sucesso: true,
-        mensagem:
-          "Login realizado"
-      }
+        mensagem: "Login realizado",
+      };
     }
 
     return {
       sucesso: false,
-      mensagem:
-        "E-mail ou senha inválidos"
-    }
+      mensagem: "E-mail ou senha inválidos",
+    };
   }
 
-  function cadastrar(
-    nome: string,
-    email: string,
-    senha: string
-  ) {
+  function cadastrar(nome: string, email: string, senha: string) {
+    const emailLimpo = email.trim().toLowerCase();
 
-    const emailLimpo =
-      email.trim().toLowerCase()
-
-    const usuarioExiste =
-      usuarios.value.find(
-        user =>
-          user.email
-            .toLowerCase() ===
-          emailLimpo
-      )
+    const usuarioExiste = usuarios.value.find(
+      (user) => user.email.toLowerCase() === emailLimpo,
+    );
 
     if (usuarioExiste) {
       return {
         sucesso: false,
-        mensagem:
-          "E-mail já cadastrado"
-      }
+        mensagem: "E-mail já cadastrado",
+      };
     }
 
-    if (senha.length < 6) {
+    const senhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!senhaForte.test(senha)) {
       return {
         sucesso: false,
         mensagem:
-          "Senha fraca (mínimo 6 caracteres)"
-      }
+          "Senha fraca. Use no mínimo 8 caracteres, uma letra maiúscula, uma minúscula e um número.",
+      };
     }
 
     const novoUsuario = {
       nome,
       email: emailLimpo,
-      senha
-    }
+      senha,
+    };
 
-    usuarios.value.push(
-      novoUsuario
-    )
+    usuarios.value.push(novoUsuario);
 
-    console.log(
-      "Usuários:",
-      usuarios.value
-    )
+    console.log("Usuários:", usuarios.value);
 
     return {
       sucesso: true,
-      mensagem:
-        "Cadastro realizado!"
-    }
+      mensagem: "Cadastro realizado!",
+    };
   }
 
   function logout() {
-    usuarioLogado.value = null
+    usuarioLogado.value = null;
   }
 
-  function resetarSenha(
-    email: string
-  ) {
-
-    const usuario =
-      usuarios.value.find(
-        user =>
-          user.email ===
-          email.trim()
-            .toLowerCase()
-      )
+  function resetarSenha(email: string) {
+    const usuario = usuarios.value.find(
+      (user) => user.email === email.trim().toLowerCase(),
+    );
 
     if (!usuario) {
       return {
         sucesso: false,
-        mensagem:
-          "E-mail não encontrado"
-      }
+        mensagem: "E-mail não encontrado",
+      };
     }
 
     return {
       sucesso: true,
-      mensagem:
-        "Link enviado"
-    }
+      mensagem: "Link enviado",
+    };
   }
 
   return {
@@ -149,6 +109,6 @@ export function useAuth() {
     login,
     cadastrar,
     logout,
-    resetarSenha
-  }
+    resetarSenha,
+  };
 }

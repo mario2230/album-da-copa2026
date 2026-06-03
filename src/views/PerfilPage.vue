@@ -1,12 +1,8 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>
-          Meu Perfil
-        </ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <AppHeader
+    titulo="Perfil"
+    />
 
     <ion-content class="ion-padding">
 
@@ -66,9 +62,6 @@ from "vue-router"
 
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonCard,
   IonCardHeader,
