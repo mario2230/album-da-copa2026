@@ -1,38 +1,25 @@
 <template>
   <ion-page>
-    <AppHeader
-    titulo="Login"
-    />
+    <AppHeader titulo="Login" />
 
     <ion-content class="ion-padding">
 
-      <LoginForm
-        @login="realizarLogin"
-      />
+      <LoginForm @login="realizarLogin" />
 
-      <ion-button
-        expand="block"
-        fill="clear"
-        @click="irCadastro"
-      >
+      <ion-button expand="block" fill="clear" @click="irCadastro">
         Criar conta
       </ion-button>
 
-      <ion-button
-        expand="block"
-        fill="clear"
-        @click="esqueciSenha"
-      >
+      <ion-button expand="block" fill="clear" @click="esqueciSenha">
         Esqueci minha senha
       </ion-button>
 
-      <ion-text
-        color="danger"
-        v-if="mensagemErro"
-      >
+      <ion-text color="danger" v-if="mensagemErro">
         <p>{{ mensagemErro }}</p>
       </ion-text>
-
+      <ion-toast :is-open="mostrarToast" :message="mensagemToast" duration="2000" @didDismiss="
+        mostrarToast = false
+        " />
     </ion-content>
   </ion-page>
 </template>
@@ -45,7 +32,8 @@ import {
   IonPage,
   IonContent,
   IonButton,
-  IonText
+  IonText,
+  IonToast
 } from "@ionic/vue"
 
 import LoginForm from "@/components/LoginForm.vue"
@@ -53,6 +41,9 @@ import LoginForm from "@/components/LoginForm.vue"
 import { useAuth } from "@/composables/useAuth"
 
 const router = useRouter()
+const mostrarToast = ref(false)
+const mensagemToast = ref("")
+
 
 const { login } = useAuth()
 
@@ -68,15 +59,22 @@ function realizarLogin(
   const resultado =
     login(email, senha)
 
+  mensagemToast.value =
+    resultado.mensagem
+
+  mostrarToast.value =
+    true
+
   if (resultado.sucesso) {
 
-    router.push("/pages/album")
+    setTimeout(() => {
 
-    return
+      router.push(
+        "/pages/album"
+      )
+
+    }, 1000)
   }
-
-  mensagemErro.value =
-    resultado.mensagem
 }
 
 function irCadastro() {
@@ -88,8 +86,8 @@ function esqueciSenha() {
     "Tela de recuperação apenas ilustrativa"
   )
   setTimeout(() => {
-     router.push("/resetpass")
+    router.push("/resetpass")
   }, 1000)
- 
+
 }
 </script>

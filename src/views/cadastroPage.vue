@@ -1,30 +1,22 @@
 <template>
   <ion-page>
-    <AppHeader
-    titulo="Cadastro"
-    />
+    <AppHeader titulo="Cadastro" />
 
     <ion-content class="ion-padding">
 
-      <RegisterForm
-        @register="realizarCadastro"
-      />
+      <RegisterForm @register="realizarCadastro" />
 
-      <ion-button
-        expand="block"
-        fill="clear"
-        @click="voltarLogin"
-      >
+      <ion-button expand="block" fill="clear" @click="voltarLogin">
         Voltar ao Login
       </ion-button>
 
-      <ion-text
-        color="danger"
-        v-if="mensagem"
-      >
+      <ion-text color="danger" v-if="mensagem">
         <p>{{ mensagem }}</p>
       </ion-text>
 
+      <ion-toast :is-open="mostrarToast" :message="mensagemToast" duration="2000" @didDismiss="
+        mostrarToast = false
+        " />
     </ion-content>
   </ion-page>
 </template>
@@ -37,7 +29,8 @@ import {
   IonPage,
   IonContent,
   IonButton,
-  IonText
+  IonText,
+  IonToast
 } from "@ionic/vue"
 
 import RegisterForm from "@/components/RegisterForm.vue"
@@ -46,9 +39,10 @@ import { useAuth } from "@/composables/useAuth"
 
 const router = useRouter()
 
-const { cadastrar } =
-  useAuth()
+const { cadastrar } = useAuth()
+const mostrarToast = ref(false)
 
+const mensagemToast = ref("")
 const mensagem = ref("")
 
 function realizarCadastro(
@@ -57,8 +51,6 @@ function realizarCadastro(
   senha: string
 ) {
 
-  mensagem.value = ""
-
   const resultado =
     cadastrar(
       nome,
@@ -66,14 +58,21 @@ function realizarCadastro(
       senha
     )
 
-  mensagem.value =
+  mensagemToast.value =
     resultado.mensagem
+
+  mostrarToast.value =
+    true
 
   if (resultado.sucesso) {
 
     setTimeout(() => {
-      router.push("/login")
-    }, 1000)
+
+      router.push(
+        "/login"
+      )
+
+    }, 1500)
   }
 }
 
