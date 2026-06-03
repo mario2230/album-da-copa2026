@@ -1,0 +1,7 @@
+{
+  "name": "album-da-copa2026",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
