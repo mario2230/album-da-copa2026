@@ -6,7 +6,7 @@ interface Usuario {
   senha: string;
 }
 
-// Estado global
+
 const usuarios = ref<Usuario[]>([
   {
     nome: "Administrador",
@@ -15,7 +15,6 @@ const usuarios = ref<Usuario[]>([
   },
 ]);
 
-// EXPORTAR para o router usar
 export const usuarioLogado = ref<Usuario | null>(null);
 
 export function useAuth() {
