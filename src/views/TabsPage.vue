@@ -4,14 +4,20 @@
       <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="tab1" href="/pages/album">
-          <ion-icon aria-hidden="true" :icon="triangle" />
+          <ion-icon aria-hidden="true" :icon="bookOutline" />
           <ion-label>Tab 1</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab2" href="/pages/perfil">
-          <ion-icon aria-hidden="true" :icon="ellipse" />
+          <ion-icon aria-hidden="true" :icon="personOutline" />
           <ion-label>Tab 2</ion-label>
         </ion-tab-button>
+
+        <ion-tab-button tab="tab2" href="/pages/termos">
+          <ion-icon aria-hidden="true" :icon="informationCircleOutline" />
+          <ion-label>Tab 3</ion-label>
+        </ion-tab-button>
+
 
 
       </ion-tab-bar>
@@ -21,5 +27,5 @@
 
 <script setup lang="ts">
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import { ellipse, triangle } from 'ionicons/icons';
+import { bookOutline, personOutline, informationCircleOutline } from 'ionicons/icons';
 </script>

@@ -68,6 +68,13 @@ Array<RouteRecordRaw> = [
         redirect:
           "/pages/album"
       },
+      {
+        path: "termos",
+        component: () =>
+          import (
+            "@/views/SobrePage.vue"
+          )
+      },
 
       {
         path: "album",
