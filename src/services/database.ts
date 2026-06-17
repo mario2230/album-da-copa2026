@@ -16,6 +16,7 @@ export async function initDatabase() {
             nome TEXT NOT NULL,
             selecao TEXT NOT NULL,
             camisa TEXT,
+            raridade TEXT,
             favorito TINYINT
             );`,
         )
@@ -25,9 +26,9 @@ export async function initDatabase() {
 }
 
 
-export async function AddJogadores(nome: string, selecao: string, camisa: string, favorito: boolean) {
-    const query = `INSERT INTO jogadores (nome, selecao, camisa, favorito) VALUES (?, ?, ?, ?, ?)`
-    await db.run(query, [nome, selecao, camisa, favorito])
+export async function AddJogadores(nome: string, selecao: string, camisa: string, raridade: string, favorito: boolean) {
+    const query = `INSERT INTO jogadores (nome, selecao, camisa, raridade, favorito) VALUES (?, ?, ?, ?, ?, ?)`
+    await db.run(query, [nome, selecao, camisa, raridade, favorito])
     
 }
 
@@ -42,9 +43,9 @@ export async function deletarJogadorById(id: number) {
     return await db.run(query, [id]);
 }
 
-export async function atualizarJogador(id: number, nome: string, selecao: string, camisa: string,) {
-    const query = `UPDATE jogadores SET nome = ?, selecao = ?, camisa = ? WHERE id = ?`
-    return await db.run(query, [nome, selecao, camisa, id])
+export async function atualizarJogador(id: number, nome: string, selecao: string, camisa: string,  raridade: string) {
+    const query = `UPDATE jogadores SET nome = ?, selecao = ?, camisa = ?, raridade = ? WHERE id = ?`
+    return await db.run(query, [nome, selecao, camisa, raridade, id])
 }
 
 export async function favoritarJogador(id: number, favorito: boolean) {
