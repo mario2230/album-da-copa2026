@@ -1,5 +1,6 @@
 <template>
   <ion-grid>
+
     <ion-row>
 
       <ion-col
@@ -9,21 +10,24 @@
         size-md="6"
         size-lg="4"
       >
+
         <StickerCard
           :sticker="sticker"
           @toggle="toggleSticker"
         />
+
       </ion-col>
 
     </ion-row>
+
   </ion-grid>
 </template>
 
 <script setup lang="ts">
 import {
+  IonCol,
   IonGrid,
-  IonRow,
-  IonCol
+  IonRow
 } from "@ionic/vue"
 
 import StickerCard from "./StickerCard.vue"
@@ -36,7 +40,7 @@ interface Sticker {
   coletada: boolean
 }
 
-const { stickers } = defineProps<{
+defineProps<{
   stickers: Sticker[]
 }>()
 
@@ -45,6 +49,9 @@ const emit = defineEmits<{
 }>()
 
 function toggleSticker(id: number) {
-  emit("toggle", id)
+  emit(
+    "toggle",
+    id
+  )
 }
 </script>

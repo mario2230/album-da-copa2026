@@ -4,9 +4,10 @@
     <ion-img
       :src="sticker.foto"
       alt="Jogador"
-    ></ion-img>
+    />
 
     <ion-card-header>
+
       <ion-card-title>
         {{ sticker.nome }}
       </ion-card-title>
@@ -14,6 +15,7 @@
       <ion-card-subtitle>
         {{ sticker.selecao }}
       </ion-card-subtitle>
+
     </ion-card-header>
 
     <ion-card-content>
@@ -21,9 +23,10 @@
       <ion-badge
         :color="sticker.coletada ? 'success' : 'danger'"
       >
-        {{ sticker.coletada
-          ? 'Coletada'
-          : 'Pendente'
+        {{
+          sticker.coletada
+            ? 'Coletada'
+            : 'Pendente'
         }}
       </ion-badge>
 
@@ -46,28 +49,34 @@
 
 <script setup lang="ts">
 import {
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonCardContent,
-  IonImg,
+  IonBadge,
   IonButton,
-  IonBadge
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonImg
 } from "@ionic/vue"
 
-const props = defineProps({
+const props = defineProps<{
   sticker: {
-    type: Object,
-    required: true
+    id: number
+    nome: string
+    selecao: string
+    foto: string
+    coletada: boolean
   }
-})
+}>()
 
-const emit = defineEmits([
-  "toggle"
-])
+const emit = defineEmits<{
+  toggle: [id: number]
+}>()
 
 function toggleColetada() {
-  emit("toggle", props.sticker.id)
+  emit(
+    "toggle",
+    props.sticker.id
+  )
 }
 </script>
