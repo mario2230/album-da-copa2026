@@ -52,21 +52,21 @@ const email = ref('')
 const senha = ref('')
 const erro = ref('')
 
+
 async function fazerLogin() {
   erro.value = ''
-
   if (!email.value || !senha.value) {
     erro.value = 'Preencha todos os campos.'
     return
   }
 
   const resultado = await login(email.value, senha.value)
+  console.log('Resultado do login:', resultado)
 
   if (!resultado.sucesso) {
     erro.value = resultado.mensagem
     return
   }
-
 
   router.push('/pages/album')
 }

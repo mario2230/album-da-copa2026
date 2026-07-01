@@ -9,30 +9,36 @@ export const usuarioLogado = ref<any | null>(null);
 
 export function useAuth() {
 
-  async function login(email: string, senha: string) {
-    try {
-      const usuarios = await realizarLogin(email, senha)
 
-      if (usuarios && usuarios.length > 0) {
-        usuarioLogado.value = usuarios[0]
-        return {
-          sucesso: true,
-          mensagem: 'Login realizado com sucesso!'
-        }
-      } else {
-        return {
-          sucesso: false,
-          mensagem: 'E-mail ou senha inválidos'
-        }
+async function login(email: string, senha: string) {
+  try {
+    const emailNormalizado = email.trim().toLowerCase()
+    console.log('Tentando login com email:', emailNormalizado)
+
+    const usuarios = await realizarLogin(emailNormalizado, senha)
+
+    if (usuarios && usuarios.length > 0) {
+      usuarioLogado.value = usuarios[0]
+      console.log('Login bem-sucedido:', usuarioLogado.value)
+      return {
+        sucesso: true,
+        mensagem: 'Login realizado com sucesso!'
       }
-    } catch (erro) {
-      console.error('Erro no login:', erro)
+    } else {
+      console.warn('Nenhum usuário encontrado para', emailNormalizado)
       return {
         sucesso: false,
-        mensagem: 'Erro ao tentar fazer login. Tente novamente mais tarde.'
+        mensagem: 'E-mail ou senha inválidos'
       }
     }
+  } catch (erro) {
+    console.error('Erro no login:', erro)
+    return {
+      sucesso: false,
+      mensagem: 'Erro ao tentar fazer login. Tente novamente mais tarde.'
+    }
   }
+}
 
   async function cadastrar(
     nome: string,

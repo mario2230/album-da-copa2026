@@ -120,19 +120,29 @@ export async function deleteUsuarioById(id: number) {
   return await getDb().run(query, [id])
 }
 
+
 export async function realizarLogin(
   login: string,
   senha: string
 ) {
   await ensureDatabase()
 
+  const loginLimpo = login.trim().toLowerCase() 
   const query = `
     SELECT * FROM usuarios
     WHERE login = ? AND senha = ?;
   `
 
-  const result = await getDb().query(query, [login, senha])
-  return result.values || []
+  console.log('SQL:', query)
+  console.log('Parâmetros:', loginLimpo, senha)
+
+  const result = await getDb().query(query, [loginLimpo, senha])
+  console.log('Resultado da consulta:', result)
+
+
+  const usuarios = result.values || []
+  console.log('Usuários encontrados:', usuarios)
+  return usuarios
 }
 
 export async function findUsuarioById(id: number) {
