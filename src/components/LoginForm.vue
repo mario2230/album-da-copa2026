@@ -1,13 +1,10 @@
 <template>
   <ion-card>
     <ion-card-header>
-      <ion-card-title>
-        Entrar
-      </ion-card-title>
+      <ion-card-title>Entrar</ion-card-title>
     </ion-card-header>
 
     <ion-card-content>
-
       <ion-input
         label="E-mail"
         label-placement="floating"
@@ -23,28 +20,20 @@
         v-model="senha"
       />
 
-      <ion-button
-        expand="block"
-        class="ion-margin-top"
-        @click="fazerLogin"
-      >
+      <ion-button expand="block" class="ion-margin-top" @click="fazerLogin">
         Entrar
       </ion-button>
 
-      <ion-text
-        color="danger"
-        v-if="erro"
-      >
+      <ion-text color="danger" v-if="erro">
         <p>{{ erro }}</p>
       </ion-text>
-
     </ion-card-content>
   </ion-card>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   IonCard,
   IonCardHeader,
@@ -53,34 +42,32 @@ import {
   IonInput,
   IonButton,
   IonText
-} from "@ionic/vue"
+} from '@ionic/vue'
+import { useAuth } from '@/composables/useAuth'
 
-const emit = defineEmits<{
-  login: [
-    email: string,
-    senha: string
-  ]
-}>()
+const router = useRouter()
+const { login } = useAuth()
 
-const email = ref("")
-const senha = ref("")
-const erro = ref("")
+const email = ref('')
+const senha = ref('')
+const erro = ref('')
 
-function fazerLogin() {
-
-  erro.value = ""
+async function fazerLogin() {
+  erro.value = ''
 
   if (!email.value || !senha.value) {
-    erro.value =
-      "Preencha todos os campos"
-
+    erro.value = 'Preencha todos os campos.'
     return
   }
 
-  emit(
-    "login",
-    email.value,
-    senha.value
-  )
+  const resultado = await login(email.value, senha.value)
+
+  if (!resultado.sucesso) {
+    erro.value = resultado.mensagem
+    return
+  }
+
+
+  router.push('/pages/album')
 }
 </script>

@@ -45,12 +45,20 @@
         <p>{{ erro }}</p>
       </ion-text>
 
+      <ion-text
+        color="success"
+        v-if="sucesso"
+      >
+        <p>{{ sucesso }}</p>
+      </ion-text>
+
     </ion-card-content>
   </ion-card>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
+import { useRouter } from "vue-router"
 
 import {
   IonCard,
@@ -62,39 +70,52 @@ import {
   IonText
 } from "@ionic/vue"
 
-const emit = defineEmits<{
-  register: [
-    nome: string,
-    email: string,
-    senha: string
-  ]
-}>()
+import { useAuth } from "@/composables/useAuth"
+
+const router = useRouter()
+
+const { cadastrar } = useAuth()
 
 const nome = ref("")
 const email = ref("")
 const senha = ref("")
-const erro = ref("")
 
-function fazerCadastro() {
+const erro = ref("")
+const sucesso = ref("")
+
+async function fazerCadastro() {
 
   erro.value = ""
+  sucesso.value = ""
 
   if (
     !nome.value ||
     !email.value ||
     !senha.value
   ) {
-    erro.value =
-      "Preencha todos os campos"
-
+    erro.value = "Preencha todos os campos."
     return
   }
 
-  emit(
-    "register",
+  const resultado = await cadastrar(
     nome.value,
     email.value,
     senha.value
   )
+
+  if (!resultado.sucesso) {
+    erro.value = resultado.mensagem
+    return
+  }
+
+  sucesso.value = resultado.mensagem
+
+  nome.value = ""
+  email.value = ""
+  senha.value = ""
+
+  setTimeout(() => {
+    router.push("/login")
+  }, 1000)
 }
 </script>

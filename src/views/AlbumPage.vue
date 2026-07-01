@@ -1,12 +1,14 @@
 <template>
   <ion-page>
+
     <AppHeader
-    titulo="Álbum da Copa"
+      titulo="Álbum da Copa"
     />
 
     <ion-content class="ion-padding">
 
       <ion-card>
+
         <ion-card-header>
           <ion-card-title>
             Meu Álbum
@@ -14,6 +16,7 @@
         </ion-card-header>
 
         <ion-card-content>
+
           <p>
             Total de figurinhas:
             {{ totalFigurinhas }}
@@ -23,9 +26,10 @@
             Coletadas:
             {{ totalColetadas }}
           </p>
-        </ion-card-content>
-      </ion-card>
 
+        </ion-card-content>
+
+      </ion-card>
 
       <ion-searchbar
         v-model="pesquisa"
@@ -35,6 +39,7 @@
       <ion-segment
         v-model="filtro"
       >
+
         <ion-segment-button value="todas">
           <ion-label>
             Todas
@@ -52,8 +57,8 @@
             Pendentes
           </ion-label>
         </ion-segment-button>
-      </ion-segment>
 
+      </ion-segment>
 
       <StickerList
         :stickers="stickersFiltradas"
@@ -61,6 +66,7 @@
       />
 
     </ion-content>
+
   </ion-page>
 </template>
 
@@ -78,6 +84,7 @@ import {
   IonLabel
 } from "@ionic/vue"
 
+import AppHeader from "@/components/AppHeader.vue"
 import StickerList from "@/components/StickerList.vue"
 
 import { useAlbum } from "@/composables/useAlbum"

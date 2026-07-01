@@ -1,113 +1,109 @@
 import { ref } from "vue";
 
-interface Usuario {
-  nome: string;
-  email: string;
-  senha: string;
-}
+import {
+  addUsuario,
+  realizarLogin
+} from "@/services/database";
 
-
-const usuarios = ref<Usuario[]>([
-  {
-    nome: "Administrador",
-    email: "admin@email.com",
-    senha: "123456",
-  },
-]);
-
-export const usuarioLogado = ref<Usuario | null>(null);
+export const usuarioLogado = ref<any | null>(null);
 
 export function useAuth() {
-  function login(email: string, senha: string) {
-    const usuario = usuarios.value.find(
-      (user) =>
-        user.email.trim().toLowerCase() === email.trim().toLowerCase() &&
-        user.senha === senha,
-    );
 
-    if (usuario) {
-      usuarioLogado.value = usuario;
+  async function login(email: string, senha: string) {
+    try {
+      const usuarios = await realizarLogin(email, senha)
 
-      return {
-        sucesso: true,
-        mensagem: "Login realizado",
-      };
-    }
-
-    return {
-      sucesso: false,
-      mensagem: "E-mail ou senha inválidos",
-    };
-  }
-
-  function cadastrar(nome: string, email: string, senha: string) {
-    const emailLimpo = email.trim().toLowerCase();
-
-    const usuarioExiste = usuarios.value.find(
-      (user) => user.email.toLowerCase() === emailLimpo,
-    );
-
-    if (usuarioExiste) {
+      if (usuarios && usuarios.length > 0) {
+        usuarioLogado.value = usuarios[0]
+        return {
+          sucesso: true,
+          mensagem: 'Login realizado com sucesso!'
+        }
+      } else {
+        return {
+          sucesso: false,
+          mensagem: 'E-mail ou senha inválidos'
+        }
+      }
+    } catch (erro) {
+      console.error('Erro no login:', erro)
       return {
         sucesso: false,
-        mensagem: "E-mail já cadastrado",
-      };
+        mensagem: 'Erro ao tentar fazer login. Tente novamente mais tarde.'
+      }
     }
+  }
 
-    const senhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  async function cadastrar(
+    nome: string,
+    email: string,
+    senha: string
+  ) {
+
+    const senhaForte =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     if (!senhaForte.test(senha)) {
       return {
         sucesso: false,
         mensagem:
-          "Senha fraca. Use no mínimo 8 caracteres, uma letra maiúscula, uma minúscula e um número.",
+          "Senha fraca. Use no mínimo 8 caracteres, uma letra maiúscula, uma minúscula e um número."
       };
     }
 
-    const novoUsuario = {
-      nome,
-      email: emailLimpo,
-      senha,
-    };
+    try {
 
-    usuarios.value.push(novoUsuario);
+      await addUsuario(
+        nome,
+        email.trim().toLowerCase(),
+        senha
+      );
 
-    console.log("Usuários:", usuarios.value);
+      return {
+        sucesso: true,
+        mensagem: "Cadastro realizado!"
+      };
 
-    return {
-      sucesso: true,
-      mensagem: "Cadastro realizado!",
-    };
+    } catch {
+
+      return {
+        sucesso: false,
+        mensagem: "E-mail já cadastrado"
+      };
+
+    }
+
   }
 
   function logout() {
+
     usuarioLogado.value = null;
+
   }
 
-  function resetarSenha(email: string) {
-    const usuario = usuarios.value.find(
-      (user) => user.email === email.trim().toLowerCase(),
-    );
-
-    if (!usuario) {
-      return {
-        sucesso: false,
-        mensagem: "E-mail não encontrado",
-      };
-    }
+  async function resetarSenha(
+    email: string
+  ) {
 
     return {
       sucesso: true,
-      mensagem: "Link enviado",
+      mensagem: "Link enviado para " + email
     };
+
   }
 
   return {
+
     usuarioLogado,
-    usuarios,
+
     login,
+
     cadastrar,
+
     logout,
-    resetarSenha,
+
+    resetarSenha
+
   };
+
 }

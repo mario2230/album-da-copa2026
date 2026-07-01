@@ -33,50 +33,70 @@ import {
   IonToast
 } from "@ionic/vue"
 
+import AppHeader from "@/components/AppHeader.vue"
 import RegisterForm from "@/components/RegisterForm.vue"
 
-import { useAuth } from "@/composables/useAuth"
+import {
+  addUsuario,
+  listUsuarios
+} from "@/services/database"
 
 const router = useRouter()
 
-const { cadastrar } = useAuth()
 const mostrarToast = ref(false)
-
 const mensagemToast = ref("")
 const mensagem = ref("")
 
-function realizarCadastro(
+async function realizarCadastro(
   nome: string,
   email: string,
   senha: string
 ) {
 
-  const resultado =
-    cadastrar(
-      nome,
-      email,
-      senha
+  mensagem.value = ""
+
+  const usuarios =
+    await listUsuarios()
+
+  const existe =
+    usuarios.find(
+      (u: any) =>
+        u.login === email
     )
 
+  if (existe) {
+
+    mensagem.value =
+      "E-mail já cadastrado."
+
+    mensagemToast.value =
+      mensagem.value
+
+    mostrarToast.value = true
+
+    return
+  }
+
+  await addUsuario(
+    nome,
+    email,
+    senha
+  )
+
   mensagemToast.value =
-    resultado.mensagem
+    "Cadastro realizado com sucesso!"
 
   mostrarToast.value =
     true
 
-  if (resultado.sucesso) {
+  setTimeout(() => {
 
-    setTimeout(() => {
+    router.push("/login")
 
-      router.push(
-        "/login"
-      )
-
-    }, 1500)
-  }
+  }, 1500)
 }
 
 function voltarLogin() {
-  router.push("/")
+  router.push("/login")
 }
 </script>

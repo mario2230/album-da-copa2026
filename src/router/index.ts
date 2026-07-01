@@ -68,10 +68,11 @@ Array<RouteRecordRaw> = [
         redirect:
           "/pages/album"
       },
+
       {
         path: "termos",
         component: () =>
-          import (
+          import(
             "@/views/SobrePage.vue"
           )
       },
@@ -89,6 +90,22 @@ Array<RouteRecordRaw> = [
         component: () =>
           import(
             "@/views/PerfilPage.vue"
+          )
+      },
+
+      {
+        path: "contato-cadastro",
+        component: () =>
+          import(
+            "@/views/ContatoCadastroPage.vue"
+          )
+      },
+
+      {
+        path: "contato-lista",
+        component: () =>
+          import(
+            "@/views/ContatoListPage.vue"
           )
       }
     ]
@@ -119,7 +136,6 @@ router.beforeEach(
       return next("/login")
     }
 
-   
     if (
       logado &&
       (
