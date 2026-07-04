@@ -314,31 +314,6 @@ export async function deleteUsuarioById(id: number) {
   return await getDb().run(query, [id]);
 }
 
-<<<<<<< Updated upstream
-
-export async function realizarLogin(
-  login: string,
-  senha: string
-) {
-  await ensureDatabase()
-
-  const loginLimpo = login.trim().toLowerCase() 
-  const query = `
-    SELECT * FROM usuarios
-    WHERE login = ? AND senha = ?;
-  `
-
-  console.log('SQL:', query)
-  console.log('Parâmetros:', loginLimpo, senha)
-
-  const result = await getDb().query(query, [loginLimpo, senha])
-  console.log('Resultado da consulta:', result)
-
-
-  const usuarios = result.values || []
-  console.log('Usuários encontrados:', usuarios)
-  return usuarios
-=======
 export async function realizarLogin(login: string, senha: string) {
   await ensureDatabase();
 
@@ -353,7 +328,6 @@ export async function realizarLogin(login: string, senha: string) {
   );
 
   return result.values || [];
->>>>>>> Stashed changes
 }
 
 export async function findUsuarioById(id: number) {
