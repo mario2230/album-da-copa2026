@@ -99,7 +99,7 @@ async function fazerCadastro() {
 
   const resultado = await cadastrar(
     nome.value,
-    email.value,
+    email.value.trim().toLocaleLowerCase(),
     senha.value
   )
 

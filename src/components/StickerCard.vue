@@ -16,6 +16,10 @@
         {{ sticker.selecao }}
       </ion-card-subtitle>
 
+      <ion-card-subtitle>
+        {{ sticker.raridade }}
+      </ion-card-subtitle>
+
     </ion-card-header>
 
     <ion-card-content>
@@ -66,6 +70,7 @@ const props = defineProps<{
     selecao: string
     foto: string
     coletada: boolean
+    raridade: string
   }
 }>()
 

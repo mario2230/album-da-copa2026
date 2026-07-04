@@ -38,6 +38,7 @@ interface Sticker {
   selecao: string
   foto: string
   coletada: boolean
+  raridade: string
 }
 
 defineProps<{

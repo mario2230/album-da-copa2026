@@ -1,10 +1,19 @@
+<<<<<<< Updated upstream
 import { ref, computed, onMounted } from "vue"
+=======
+import {
+  ref,
+  computed,
+  onMounted
+} from "vue"
+>>>>>>> Stashed changes
 
 import {
   listJogadores,
   atualizarColetada
 } from "@/services/database"
 
+<<<<<<< Updated upstream
 
 const stickersData = [
   // BRASIL
@@ -153,6 +162,11 @@ const stickersData = [
     foto: "https://img.a.transfermarkt.technology/portrait/big/937958-1699476962.jpg"
   }
 ]
+=======
+import {
+  usuarioLogado
+} from "@/composables/useAuth"
+>>>>>>> Stashed changes
 
 export function useAlbum() {
 
@@ -167,6 +181,7 @@ export function useAlbum() {
       const jogadores = await listJogadores()
       console.log("Jogadores do banco:", jogadores)
 
+<<<<<<< Updated upstream
 
       stickers.value = stickersData.map(sticker => {
         const jogador = jogadores.find((j: any) => j.id === sticker.id)
@@ -203,6 +218,39 @@ export function useAlbum() {
 
     }
   }
+=======
+    if (!usuarioLogado.value) {
+      return
+    }
+
+    stickers.value =
+      await listJogadores(
+        usuarioLogado.value.id
+      )
+
+  }
+
+  async function marcarColetada(id: number) {
+
+    const figurinha = stickers.value.find(
+        sticker => sticker.id === id
+    )
+
+    if (!figurinha) {
+        return
+    }
+
+    const novoStatus = !figurinha.coletada
+
+    await atualizarColetada(
+        usuarioLogado.value.id,
+        id,
+        novoStatus
+    )
+
+    figurinha.coletada = novoStatus
+}
+>>>>>>> Stashed changes
 
   const stickersFiltradas = computed(() => {
     let resultado = stickers.value
@@ -224,8 +272,20 @@ export function useAlbum() {
     return resultado
   })
 
+<<<<<<< Updated upstream
   const totalFigurinhas = computed(() => stickers.value.length)
   const totalColetadas = computed(() => stickers.value.filter(sticker => sticker.coletada).length)
+=======
+  const totalFigurinhas = computed(() =>
+    stickers.value.length
+  )
+
+  const totalColetadas = computed(() =>
+    stickers.value.filter(
+      sticker => Boolean(sticker.coletada)
+    ).length
+  )
+>>>>>>> Stashed changes
 
   onMounted(() => {
     carregarAlbum()
@@ -237,6 +297,7 @@ export function useAlbum() {
     marcarColetada,
     stickersFiltradas,
     totalFigurinhas,
-    totalColetadas
+    totalColetadas,
+    carregarAlbum
   }
 }
