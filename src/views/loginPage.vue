@@ -1,16 +1,11 @@
-
 <template>
   <ion-page>
     <AppHeader titulo="Login" />
-
     <ion-content class="ion-padding">
-
       <LoginForm />
-
       <ion-button expand="block" fill="clear" @click="irCadastro">
         Criar conta
       </ion-button>
-
       <ion-button expand="block" fill="clear" @click="esqueciSenha">
         Esqueci minha senha
       </ion-button>
@@ -25,12 +20,6 @@ import AppHeader from '@/components/AppHeader.vue'
 import LoginForm from '@/components/LoginForm.vue'
 
 const router = useRouter()
-
-function irCadastro() {
-  router.push('/cadastro')
-}
-
-function esqueciSenha() {
-  router.push('/resetpass')
-}
+function irCadastro() { router.push('/cadastro') }
+function esqueciSenha() { router.push('/resetpass') }
 </script>

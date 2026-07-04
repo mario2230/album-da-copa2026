@@ -8,16 +8,17 @@
           <ion-label>Tab 1</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab2" href="/pages/perfil">
-          <ion-icon aria-hidden="true" :icon="personOutline" />
-          <ion-label>Tab 2</ion-label>
-        </ion-tab-button>
+        
 
         <ion-tab-button tab="tab2" href="/pages/termos">
           <ion-icon aria-hidden="true" :icon="informationCircleOutline" />
-          <ion-label>Tab 3</ion-label>
+          <ion-label>Tab 2</ion-label>
         </ion-tab-button>
 
+        <ion-tab-button tab="tab3" href="/pages/perfil">
+          <ion-icon aria-hidden="true" :icon="personOutline" />
+          <ion-label>Tab 3</ion-label>
+        </ion-tab-button>
 
 
       </ion-tab-bar>
