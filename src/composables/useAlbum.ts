@@ -6,7 +6,8 @@ import {
 
 import {
   listJogadores,
-  atualizarColetada
+  atualizarColetada,
+  verificarConquistas
 } from "@/services/database"
 
 import {
@@ -53,6 +54,8 @@ export function useAlbum() {
     )
 
     figurinha.coletada = novoStatus
+
+    await verificarConquistas(usuarioLogado.value.id)
 }
 
   const stickersFiltradas = computed(() => {

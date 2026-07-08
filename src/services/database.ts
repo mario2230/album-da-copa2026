@@ -46,6 +46,34 @@ async function ensureDatabase() {
   `);
 
   await db.execute(`
+  CREATE TABLE IF NOT EXISTS achievements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    descricao TEXT NOT NULL,
+    icone TEXT NOT NULL
+  );
+  `);
+
+  await db.execute(`
+  CREATE TABLE IF NOT EXISTS user_achievements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    user_id INTEGER NOT NULL,
+    achievement_id INTEGER NOT NULL,
+
+    data_desbloqueio TEXT NOT NULL,
+
+    UNIQUE(user_id, achievement_id),
+
+    FOREIGN KEY(user_id)
+        REFERENCES usuarios(id),
+
+    FOREIGN KEY(achievement_id)
+        REFERENCES achievements(id)
+  );
+  `);
+
+  await db.execute(`
   CREATE TABLE IF NOT EXISTS jogadores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
@@ -55,6 +83,7 @@ async function ensureDatabase() {
   );
   `);
 
+  await popularAchievements();
   await popularJogadores();
 
   await db.execute(`
@@ -93,7 +122,6 @@ export async function initDatabase() {
     throw error;
   }
 }
-
 async function popularJogadores() {
   const existe = await getDb().query(`
     SELECT COUNT(*) AS total
@@ -102,11 +130,9 @@ async function popularJogadores() {
 
   const total = existe.values?.[0]?.total ?? 0;
 
-  if (total > 0) {
-    return;
-  }
+  if (total > 0) return;
 
-  const jogadores = [
+    const jogadores = [
     // BRASIL
     {
       nome: "Neymar Jr",
@@ -260,6 +286,9 @@ async function popularJogadores() {
     },
   ];
 
+
+  
+
   for (const jogador of jogadores) {
     await getDb().run(
       `
@@ -267,8 +296,258 @@ async function popularJogadores() {
       (nome, selecao, foto, raridade)
       VALUES (?, ?, ?, ?);
       `,
-      [jogador.nome, jogador.selecao, jogador.foto, jogador.raridade],
+      [
+        jogador.nome,
+        jogador.selecao,
+        jogador.foto,
+        jogador.raridade,
+      ]
     );
+  }
+}
+
+ async function popularAchievements() {
+
+    const existe = await getDb().query(`
+        SELECT COUNT(*) total
+        FROM achievements;
+    `)
+
+    if ((existe.values?.[0]?.total ?? 0) > 0)
+        return
+
+    const achievements = [
+  {
+    nome: "Primeira Figurinha",
+    descricao: "Colete sua primeira figurinha.",
+    icone: "ribbon-outline",
+  },
+  {
+    nome: "Iniciante",
+    descricao: "Colete 10 figurinhas.",
+    icone: "star-outline",
+  },
+  {
+    nome: "Colecionador",
+    descricao: "Colete 25 figurinhas.",
+    icone: "trophy-outline",
+  },
+  {
+    nome: "Álbum em Construção",
+    descricao: "Colete 50 figurinhas.",
+    icone: "albums-outline",
+  },
+  {
+    nome: "Caçador de Raras",
+    descricao: "Colete 5 figurinhas raras.",
+    icone: "diamond-outline",
+  },
+  {
+    nome: "Especialista em Raras",
+    descricao: "Colete 15 figurinhas raras.",
+    icone: "medal-outline",
+  },
+  {
+    nome: "Mestre Épico",
+    descricao: "Colete 3 figurinhas épicas.",
+    icone: "sparkles-outline",
+  },
+  {
+    nome: "Lenda da Copa",
+    descricao: "Colete 10 figurinhas épicas.",
+    icone: "flash-outline",
+  },
+  {
+    nome: "Álbum Quase Completo",
+    descricao: "Complete 80% do álbum.",
+    icone: "flag-outline",
+  },
+  {
+    nome: "Campeão da Copa",
+    descricao: "Complete 100% do álbum.",
+    icone: "trophy",
+  },
+  {
+    nome: "Orgulho Brasileiro",
+    descricao: "Colete todas as figurinhas da Seleção Brasileira.",
+    icone: "flag",
+  },
+  {
+    nome: "Força Argentina",
+    descricao: "Colete todas as figurinhas da Seleção Argentina.",
+    icone: "football-outline",
+  },
+];
+
+    for (const achievement of achievements) {
+
+        await getDb().run(
+            `
+            INSERT INTO achievements
+            (nome,descricao,icone)
+            VALUES(?,?,?)
+            `,
+            [
+                achievement.nome,
+                achievement.descricao,
+                achievement.icone
+            ]
+        )
+
+    }
+
+}
+
+  
+
+
+export async function desbloquearAchievement(
+  usuarioId: number,
+  achievementId: number,
+) {
+  await ensureDatabase();
+
+  await getDb().run(
+    `
+    INSERT OR IGNORE INTO user_achievements
+    (
+      user_id,
+      achievement_id,
+      data_desbloqueio
+    )
+    VALUES
+    (
+      ?,
+      ?,
+      datetime('now')
+    );
+    `,
+    [usuarioId, achievementId],
+  );
+}
+
+export async function listAchievements(usuarioId: number) {
+  await ensureDatabase();
+
+  const result = await getDb().query(
+    `
+    SELECT
+
+      a.id,
+      a.nome,
+      a.descricao,
+      a.icone,
+
+      CASE
+
+        WHEN ua.id IS NULL
+        THEN 0
+
+        ELSE 1
+
+      END AS desbloqueada,
+
+      ua.data_desbloqueio
+
+    FROM achievements a
+
+    LEFT JOIN user_achievements ua
+
+      ON ua.achievement_id = a.id
+
+      AND ua.user_id = ?;
+
+    `,
+    [usuarioId],
+  );
+
+  return result.values || [];
+}
+
+export async function verificarConquistas(usuarioId: number) {
+  await ensureDatabase();
+
+  const jogadores = await listJogadores(usuarioId);
+
+  const totalJogadores = jogadores.length;
+
+  const coletadas = jogadores.filter(
+    (j: any) => Boolean(j.coletada)
+  );
+
+  const totalColetadas = coletadas.length;
+
+  const raras = coletadas.filter(
+    (j: any) =>
+      j.raridade === "Rara" ||
+      j.raridade === "Épica" ||
+      j.raridade === "Lendária"
+  ).length;
+
+  const epicas = coletadas.filter(
+    (j: any) => j.raridade === "Épica"
+  ).length;
+
+
+  const porcentagem =
+    totalJogadores === 0
+      ? 0
+      : (totalColetadas / totalJogadores) * 100;
+
+  // ===== Total de figurinhas =====
+
+  if (totalColetadas >= 1)
+    await desbloquearAchievement(usuarioId, 1);
+
+  if (totalColetadas >= 10)
+    await desbloquearAchievement(usuarioId, 2);
+
+  if (totalColetadas >= 25)
+    await desbloquearAchievement(usuarioId, 3);
+
+  if (totalColetadas >= 50)
+    await desbloquearAchievement(usuarioId, 4);
+
+  // ===== Figurinhas raras =====
+
+  if (raras >= 5)
+    await desbloquearAchievement(usuarioId, 5);
+
+  if (raras >= 15)
+    await desbloquearAchievement(usuarioId, 6);
+
+  // ===== Figurinhas épicas =====
+
+  if (epicas >= 3)
+    await desbloquearAchievement(usuarioId, 7);
+
+  if (epicas >= 10)
+    await desbloquearAchievement(usuarioId, 8);
+
+  // ===== Álbum =====
+
+  if (porcentagem >= 80)
+    await desbloquearAchievement(usuarioId, 9);
+
+  if (porcentagem >= 100)
+    await desbloquearAchievement(usuarioId, 10);
+
+  // ===== Coleções específicas =====
+
+  const brasilCompleto = jogadores
+    .filter((j: any) => j.selecao === "Brasil")
+    .every((j: any) => Boolean(j.coletada));
+
+  if (brasilCompleto) {
+    await desbloquearAchievement(usuarioId, 11);
+  }
+
+  const argentinaCompleta = jogadores
+    .filter((j: any) => j.selecao === "Argentina")
+    .every((j: any) => Boolean(j.coletada));
+
+  if (argentinaCompleta) {
+    await desbloquearAchievement(usuarioId, 12);
   }
 }
 
@@ -413,26 +692,21 @@ export async function findContatoByName(nome: string) {
 }
 
 export async function addJogador(
-    nome: string,
-    selecao: string,
-    foto: string,
-    raridade: string
+  nome: string,
+  selecao: string,
+  foto: string,
+  raridade: string,
 ) {
-    await ensureDatabase()
+  await ensureDatabase();
 
-    await getDb().run(
-        `
+  await getDb().run(
+    `
         INSERT INTO jogadores
         (nome, selecao, foto, raridade)
         VALUES (?, ?, ?, ?);
         `,
-        [
-            nome,
-            selecao,
-            foto,
-            raridade
-        ]
-    )
+    [nome, selecao, foto, raridade],
+  );
 }
 
 export async function listJogadores(usuarioId: number) {
@@ -441,17 +715,23 @@ export async function listJogadores(usuarioId: number) {
   const result = await getDb().query(
     `
     SELECT
-    j.id,
-    j.nome,
-    j.selecao,
-    j.foto,
-    j.raridade,
-    COALESCE(a.coletada, 0) AS coletada,
-    COALESCE(a.favorito, 0) AS favorito
-    FROM jogadores j
-    LEFT JOIN album a
-    ON a.jogador_id = j.id
-    AND a.usuario_id = ?;
+
+  j.id,
+  j.nome,
+  j.selecao,
+  j.foto,
+  j.raridade,
+
+  COALESCE(a.coletada,0) AS coletada,
+  COALESCE(a.favorito,0) AS favorito
+
+  FROM jogadores j
+
+  LEFT JOIN album a
+
+  ON a.jogador_id = j.id
+
+  AND a.usuario_id = ?;
 
     `,
     [usuarioId],
@@ -470,6 +750,7 @@ export async function findJogadorById(jogadorId: number, usuarioId: number) {
     j.selecao,
     j.foto,
     j.raridade,
+    
     COALESCE(a.coletada,0) AS coletada,
     COALESCE(a.favorito,0) AS favorito
     FROM jogadores j
@@ -484,17 +765,16 @@ export async function findJogadorById(jogadorId: number, usuarioId: number) {
   return result.values || [];
 }
 export async function atualizarJogador(
-    id: number,
-    nome: string,
-    selecao: string,
-    foto: string,
-    raridade: string
+  id: number,
+  nome: string,
+  selecao: string,
+  foto: string,
+  raridade: string,
 ) {
+  await ensureDatabase();
 
-    await ensureDatabase()
-
-    return await getDb().run(
-        `
+  return await getDb().run(
+    `
         UPDATE jogadores
         SET
             nome = ?,
@@ -503,14 +783,8 @@ export async function atualizarJogador(
             raridade = ?
         WHERE id = ?;
         `,
-        [
-            nome,
-            selecao,
-            foto,
-            raridade,
-            id
-        ]
-    )
+    [nome, selecao, foto, raridade, id],
+  );
 }
 
 export async function deletarJogadorById(id: number) {
@@ -602,26 +876,19 @@ export async function atualizarColetada(
   await getDb().run(
     `
     INSERT OR IGNORE INTO album
-
-    (
-      usuario_id,
-      jogador_id
-    )
-
+    (usuario_id, jogador_id)
     VALUES (?, ?);
     `,
-    [usuarioId, jogadorId],
+    [usuarioId, jogadorId]
   );
 
-  return await getDb().run(
+  await getDb().run(
     `
     UPDATE album
-
     SET coletada = ?
-
     WHERE usuario_id = ?
       AND jogador_id = ?;
     `,
-    [coletada ? 1 : 0, usuarioId, jogadorId],
+    [coletada ? 1 : 0, usuarioId, jogadorId]
   );
 }
