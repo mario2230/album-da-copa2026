@@ -15,9 +15,14 @@
           <ion-label>Tab 2</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab3" href="/pages/perfil">
-          <ion-icon aria-hidden="true" :icon="personOutline" />
+         <ion-tab-button tab="tab3" href="/pages/conquistas">
+          <ion-icon aria-hidden="true" :icon="trophyOutline" />
           <ion-label>Tab 3</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button tab="tab4" href="/pages/perfil">
+          <ion-icon aria-hidden="true" :icon="personOutline" />
+          <ion-label>Tab 4</ion-label>
         </ion-tab-button>
 
 
@@ -28,5 +33,5 @@
 
 <script setup lang="ts">
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import { bookOutline, personOutline, informationCircleOutline } from 'ionicons/icons';
+import { bookOutline, personOutline, informationCircleOutline, trophyOutline } from 'ionicons/icons';
 </script>
