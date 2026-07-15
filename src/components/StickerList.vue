@@ -14,6 +14,7 @@
         <StickerCard
           :sticker="sticker"
           @toggle="toggleSticker"
+          @toggle-favorito="toggleFavorito"
         />
 
       </ion-col>
@@ -38,6 +39,7 @@ interface Sticker {
   selecao: string
   foto: string
   coletada: boolean
+  favorito: boolean
   raridade: string
 }
 
@@ -46,13 +48,15 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  toggle: [id: number]
+  (e: "toggle", id: number): void
+  (e: "toggle-favorito", id: number): void
 }>()
 
 function toggleSticker(id: number) {
-  emit(
-    "toggle",
-    id
-  )
+  emit("toggle", id)
+}
+
+function toggleFavorito(id: number) {
+  emit("toggle-favorito", id)
 }
 </script>

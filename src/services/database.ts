@@ -93,6 +93,7 @@ async function ensureDatabase() {
   jogador_id INTEGER NOT NULL,
   favorito INTEGER NOT NULL DEFAULT 0,
   coletada INTEGER NOT NULL DEFAULT 0,
+  
 
   UNIQUE(usuario_id, jogador_id),
 
@@ -103,6 +104,15 @@ async function ensureDatabase() {
     REFERENCES jogadores(id)
 );
   `);
+
+ 
+  try {
+    await db.execute(`
+      ALTER TABLE album ADD COLUMN collected_at TEXT;
+    `);
+  } catch (error) {
+    // coluna já existe, pode ignorar
+  }
 
   initialized = true;
 }
@@ -132,7 +142,7 @@ async function popularJogadores() {
 
   if (total > 0) return;
 
-    const jogadores = [
+  const jogadores = [
     // BRASIL
     {
       nome: "Neymar Jr",
@@ -286,9 +296,6 @@ async function popularJogadores() {
     },
   ];
 
-
-  
-
   for (const jogador of jogadores) {
     await getDb().run(
       `
@@ -296,110 +303,78 @@ async function popularJogadores() {
       (nome, selecao, foto, raridade)
       VALUES (?, ?, ?, ?);
       `,
-      [
-        jogador.nome,
-        jogador.selecao,
-        jogador.foto,
-        jogador.raridade,
-      ]
+      [jogador.nome, jogador.selecao, jogador.foto, jogador.raridade],
     );
   }
 }
 
- async function popularAchievements() {
-
-    const existe = await getDb().query(`
+async function popularAchievements() {
+  const existe = await getDb().query(`
         SELECT COUNT(*) total
         FROM achievements;
-    `)
+    `);
 
-    if ((existe.values?.[0]?.total ?? 0) > 0)
-        return
+  if ((existe.values?.[0]?.total ?? 0) > 0) return;
 
-    const achievements = [
-  {
-    nome: "Primeira Figurinha",
-    descricao: "Colete sua primeira figurinha.",
-    icone: "ribbon-outline",
-  },
-  {
-    nome: "Iniciante",
-    descricao: "Colete 10 figurinhas.",
-    icone: "star-outline",
-  },
-  {
-    nome: "Colecionador",
-    descricao: "Colete 25 figurinhas.",
-    icone: "trophy-outline",
-  },
-  {
-    nome: "Álbum em Construção",
-    descricao: "Colete 50 figurinhas.",
-    icone: "albums-outline",
-  },
-  {
-    nome: "Caçador de Raras",
-    descricao: "Colete 5 figurinhas raras.",
-    icone: "diamond-outline",
-  },
-  {
-    nome: "Especialista em Raras",
-    descricao: "Colete 15 figurinhas raras.",
-    icone: "medal-outline",
-  },
-  {
-    nome: "Mestre Épico",
-    descricao: "Colete 3 figurinhas épicas.",
-    icone: "sparkles-outline",
-  },
-  {
-    nome: "Lenda da Copa",
-    descricao: "Colete 10 figurinhas épicas.",
-    icone: "flash-outline",
-  },
-  {
-    nome: "Álbum Quase Completo",
-    descricao: "Complete 80% do álbum.",
-    icone: "flag-outline",
-  },
-  {
-    nome: "Campeão da Copa",
-    descricao: "Complete 100% do álbum.",
-    icone: "trophy",
-  },
-  {
-    nome: "Orgulho Brasileiro",
-    descricao: "Colete todas as figurinhas da Seleção Brasileira.",
-    icone: "flag",
-  },
-  {
-    nome: "Força Argentina",
-    descricao: "Colete todas as figurinhas da Seleção Argentina.",
-    icone: "football-outline",
-  },
-];
+  const achievements = [
+    {
+      nome: "Primeira Figurinha",
+      descricao: "Colete sua primeira figurinha.",
+      icone: "ribbon-outline",
+    },
+    {
+      nome: "Iniciante",
+      descricao: "Colete 10 figurinhas.",
+      icone: "star-outline",
+    },
+    {
+      nome: "Caçador de Raras",
+      descricao: "Colete 5 figurinhas raras.",
+      icone: "diamond-outline",
+    },
+    {
+      nome: "Especialista em Raras",
+      descricao: "Colete 15 figurinhas raras.",
+      icone: "medal-outline",
+    },
+    {
+      nome: "Mestre Épico",
+      descricao: "Colete 3 figurinhas épicas.",
+      icone: "sparkles-outline",
+    },
+    {
+      nome: "Álbum Quase Completo",
+      descricao: "Complete 80% do álbum.",
+      icone: "flag-outline",
+    },
+    {
+      nome: "Campeão da Copa",
+      descricao: "Complete 100% do álbum.",
+      icone: "trophy",
+    },
+    {
+      nome: "Orgulho Brasileiro",
+      descricao: "Colete todas as figurinhas da Seleção Brasileira.",
+      icone: "flag",
+    },
+    {
+      nome: "Força Argentina",
+      descricao: "Colete todas as figurinhas da Seleção Argentina.",
+      icone: "football-outline",
+    },
+  ];
 
-    for (const achievement of achievements) {
-
-        await getDb().run(
-            `
+  for (const achievement of achievements) {
+    await getDb().run(
+      `
             INSERT INTO achievements
             (nome,descricao,icone)
             VALUES(?,?,?)
             `,
-            [
-                achievement.nome,
-                achievement.descricao,
-                achievement.icone
-            ]
-        )
-
-    }
-
+      [achievement.nome, achievement.descricao, achievement.icone],
+    );
+  }
 }
-
-  
-
 
 export async function desbloquearAchievement(
   usuarioId: number,
@@ -471,9 +446,7 @@ export async function verificarConquistas(usuarioId: number) {
 
   const totalJogadores = jogadores.length;
 
-  const coletadas = jogadores.filter(
-    (j: any) => Boolean(j.coletada)
-  );
+  const coletadas = jogadores.filter((j: any) => Boolean(j.coletada));
 
   const totalColetadas = coletadas.length;
 
@@ -481,56 +454,41 @@ export async function verificarConquistas(usuarioId: number) {
     (j: any) =>
       j.raridade === "Rara" ||
       j.raridade === "Épica" ||
-      j.raridade === "Lendária"
+      j.raridade === "Lendária",
   ).length;
 
-  const epicas = coletadas.filter(
-    (j: any) => j.raridade === "Épica"
-  ).length;
-
+  const epicas = coletadas.filter((j: any) => j.raridade === "Épica").length;
 
   const porcentagem =
-    totalJogadores === 0
-      ? 0
-      : (totalColetadas / totalJogadores) * 100;
+    totalJogadores === 0 ? 0 : (totalColetadas / totalJogadores) * 100;
 
   // ===== Total de figurinhas =====
 
-  if (totalColetadas >= 1)
-    await desbloquearAchievement(usuarioId, 1);
+  if (totalColetadas >= 1) await desbloquearAchievement(usuarioId, 1);
 
-  if (totalColetadas >= 10)
-    await desbloquearAchievement(usuarioId, 2);
+  if (totalColetadas >= 10) await desbloquearAchievement(usuarioId, 2);
 
-  if (totalColetadas >= 25)
-    await desbloquearAchievement(usuarioId, 3);
+  if (totalColetadas >= 25) await desbloquearAchievement(usuarioId, 3);
 
-  if (totalColetadas >= 50)
-    await desbloquearAchievement(usuarioId, 4);
+  if (totalColetadas >= 50) await desbloquearAchievement(usuarioId, 4);
 
   // ===== Figurinhas raras =====
 
-  if (raras >= 5)
-    await desbloquearAchievement(usuarioId, 5);
+  if (raras >= 5) await desbloquearAchievement(usuarioId, 5);
 
-  if (raras >= 15)
-    await desbloquearAchievement(usuarioId, 6);
+  if (raras >= 15) await desbloquearAchievement(usuarioId, 6);
 
   // ===== Figurinhas épicas =====
 
-  if (epicas >= 3)
-    await desbloquearAchievement(usuarioId, 7);
+  if (epicas >= 3) await desbloquearAchievement(usuarioId, 7);
 
-  if (epicas >= 10)
-    await desbloquearAchievement(usuarioId, 8);
+  if (epicas >= 10) await desbloquearAchievement(usuarioId, 8);
 
   // ===== Álbum =====
 
-  if (porcentagem >= 80)
-    await desbloquearAchievement(usuarioId, 9);
+  if (porcentagem >= 80) await desbloquearAchievement(usuarioId, 9);
 
-  if (porcentagem >= 100)
-    await desbloquearAchievement(usuarioId, 10);
+  if (porcentagem >= 100) await desbloquearAchievement(usuarioId, 10);
 
   // ===== Coleções específicas =====
 
@@ -879,16 +837,133 @@ export async function atualizarColetada(
     (usuario_id, jogador_id)
     VALUES (?, ?);
     `,
-    [usuarioId, jogadorId]
+    [usuarioId, jogadorId],
   );
 
   await getDb().run(
     `
     UPDATE album
-    SET coletada = ?
+    SET
+      coletada = ?,
+      collected_at = CASE
+        WHEN ? = 1 THEN datetime('now')
+        ELSE NULL
+      END
     WHERE usuario_id = ?
       AND jogador_id = ?;
     `,
-    [coletada ? 1 : 0, usuarioId, jogadorId]
+    [coletada ? 1 : 0, coletada ? 1 : 0, usuarioId, jogadorId],
   );
+}
+
+export async function listUltimasColetas(usuarioId: number, limite = 10) {
+  await ensureDatabase();
+
+  const result = await getDb().query(
+    `
+    SELECT
+
+      j.id,
+      j.nome,
+      j.selecao,
+      j.foto,
+      j.raridade,
+      a.collected_at
+
+    FROM album a
+
+    INNER JOIN jogadores j
+      ON j.id = a.jogador_id
+
+    WHERE a.usuario_id = ?
+      AND a.coletada = 1
+      AND a.collected_at IS NOT NULL
+
+    ORDER BY a.collected_at DESC
+
+    LIMIT ?;
+    `,
+    [usuarioId, limite],
+  );
+
+  return result.values || [];
+}
+
+export async function getEstatisticas(usuarioId: number) {
+  await ensureDatabase();
+
+  const jogadores = await listJogadores(usuarioId);
+
+  const totalCadastradas = jogadores.length;
+
+  const coletadas = jogadores.filter((j: any) => Boolean(j.coletada));
+  const totalColetadas = coletadas.length;
+
+  const totalFaltantes = totalCadastradas - totalColetadas;
+
+  const totalRaras = coletadas.filter(
+    (j: any) => j.raridade === "Rara",
+  ).length;
+
+  const totalBrilhantes = coletadas.filter(
+    (j: any) => j.raridade === "Lendária",
+  ).length;
+
+  const percentualConclusao =
+    totalCadastradas === 0
+      ? 0
+      : (totalColetadas / totalCadastradas) * 100;
+
+  return {
+    totalCadastradas,
+    totalColetadas,
+    totalFaltantes,
+    totalRaras,
+    totalBrilhantes,
+    percentualConclusao,
+  };
+}
+
+const PONTOS_POR_RARIDADE: Record<string, number> = {
+  Comum: 1,
+  Rara: 5,
+  Épica: 10,
+  Lendária: 10, 
+};
+
+const NIVEIS = [
+  { nome: "Bronze", min: 0, max: 100 },
+  { nome: "Prata", min: 101, max: 250 },
+  { nome: "Ouro", min: 251, max: 500 },
+  { nome: "Diamante", min: 501, max: Infinity },
+];
+
+export async function getRanking(usuarioId: number) {
+  await ensureDatabase();
+
+  const jogadores = await listJogadores(usuarioId);
+
+  const coletadas = jogadores.filter((j: any) => Boolean(j.coletada));
+
+  const pontuacaoTotal = coletadas.reduce((total: number, j: any) => {
+    return total + (PONTOS_POR_RARIDADE[j.raridade] ?? 0);
+  }, 0);
+
+  const nivelAtual =
+    NIVEIS.find(
+      (nivel) => pontuacaoTotal >= nivel.min && pontuacaoTotal <= nivel.max,
+    ) ?? NIVEIS[0];
+
+  const faixaDoNivel = nivelAtual.max - nivelAtual.min;
+
+  const progressoNoNivel =
+    nivelAtual.max === Infinity
+      ? 1
+      : (pontuacaoTotal - nivelAtual.min) / (faixaDoNivel + 1);
+
+  return {
+    pontuacaoTotal,
+    nivelAtual: nivelAtual.nome,
+    progressoNoNivel, // valor entre 0 e 1, direto pro IonProgressBar
+  };
 }

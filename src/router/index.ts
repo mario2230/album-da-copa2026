@@ -49,7 +49,6 @@ const routes: Array<RouteRecordRaw> = [
         redirect: "/pages/album",
       },
 
-
       {
         path: "termos",
         component: () => import("@/views/SobrePage.vue"),
@@ -59,12 +58,17 @@ const routes: Array<RouteRecordRaw> = [
         path: "album",
         component: () => import("@/views/AlbumPage.vue"),
       },
-      
+
       {
         path: "conquistas",
         component: () => import("@/views/ConquistasPage.vue"),
       },
-      
+
+      {
+        path: "estatisticas",
+        component: () => import("@/views/EstatisticasPage.vue"),
+      },
+
       {
         path: "perfil",
         component: () => import("@/views/PerfilPage.vue"),

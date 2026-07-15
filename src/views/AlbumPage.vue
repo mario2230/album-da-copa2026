@@ -1,9 +1,7 @@
 <template>
   <ion-page>
 
-    <AppHeader
-      titulo="Álbum da Copa"
-    />
+    <AppHeader titulo="Álbum da Copa" />
 
     <ion-content class="ion-padding">
 
@@ -36,33 +34,25 @@
         placeholder="Pesquisar jogador ou seleção"
       />
 
-      <ion-segment
-        v-model="filtro"
-      >
-
+      <ion-segment v-model="filtro">
         <ion-segment-button value="todas">
-          <ion-label>
-            Todas
-          </ion-label>
+          <ion-label>Todas</ion-label>
         </ion-segment-button>
-
         <ion-segment-button value="coletadas">
-          <ion-label>
-            Coletadas
-          </ion-label>
+          <ion-label>Coletadas</ion-label>
         </ion-segment-button>
-
         <ion-segment-button value="pendentes">
-          <ion-label>
-            Pendentes
-          </ion-label>
+          <ion-label>Pendentes</ion-label>
         </ion-segment-button>
-
+        <ion-segment-button value="favoritas">
+          <ion-label>Favoritas</ion-label>
+        </ion-segment-button>
       </ion-segment>
 
       <StickerList
         :stickers="stickersFiltradas"
         @toggle="marcarColetada"
+        @toggle-favorito="marcarFavorito"
       />
 
     </ion-content>
@@ -81,7 +71,8 @@ import {
   IonSearchbar,
   IonSegment,
   IonSegmentButton,
-  IonLabel
+  IonLabel,
+  onIonViewWillEnter
 } from "@ionic/vue"
 
 import AppHeader from "@/components/AppHeader.vue"
@@ -93,8 +84,16 @@ const {
   pesquisa,
   filtro,
   marcarColetada,
+  marcarFavorito,
   stickersFiltradas,
   totalFigurinhas,
-  totalColetadas
+  totalColetadas,
+  carregarAlbum
 } = useAlbum()
+
+onIonViewWillEnter(() => {
+  carregarAlbum().catch(e =>
+    console.error("[AlbumPage] erro ao recarregar álbum", e)
+  )
+})
 </script>
