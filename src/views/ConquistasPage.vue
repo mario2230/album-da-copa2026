@@ -34,9 +34,13 @@
 
                 <ion-card-header>
 
-                    <ion-card-title>
+                    <ion-card-title class="conquista-titulo">
 
-                        {{ achievement.icone }}
+                        <ion-icon
+                            :icon="getIcon(achievement.icone)"
+                            :color="achievement.desbloqueada ? 'success' : 'medium'"
+                            class="conquista-icone"
+                        />
 
                         {{ achievement.nome }}
 
@@ -67,27 +71,38 @@
 
                     <p v-if="achievement.data_desbloqueio" class="ion-margin-top">
 
-                        Data:
-                        {{ achievement.data_desbloqueio }}
+                        Desbloqueada em:
+                        {{ formatarData(achievement.data_desbloqueio) }}
 
                     </p>
-                    <p>
-                        {{ totalDesbloqueadas }}
-                        de
-                        {{ totalAchievements }}
-                        conquistas desbloqueadas
-                    </p>
+
                 </ion-card-content>
 
             </ion-card>
-            <ion-progress-bar :value="progresso" />
+
         </ion-content>
 
     </ion-page>
 </template>
 
 <script setup lang="ts">
-import { onIonViewWillEnter } from "@ionic/vue"
+import {
+    IonPage,
+    IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
+    IonBadge,
+    IonProgressBar,
+    IonIcon,
+    onIonViewWillEnter
+} from "@ionic/vue"
+
+import * as ionicons from "ionicons/icons"
+
+import AppHeader from "@/components/AppHeader.vue"
 import { useAchievements } from "@/composables/useAchievementes"
 
 const {
@@ -98,7 +113,34 @@ const {
     carregarAchievements
 } = useAchievements()
 
+function kebabToCamel(str: string) {
+    return str.replace(/-([a-z])/g, (_, letra) => letra.toUpperCase())
+}
+
+function getIcon(nomeIcone: string) {
+    const chave = kebabToCamel(nomeIcone) as keyof typeof ionicons
+    return ionicons[chave] ?? ionicons.helpCircleOutline
+}
+
+function formatarData(data: string) {
+    return new Date(data).toLocaleString("pt-BR")
+}
+
 onIonViewWillEnter(() => {
-    carregarAchievements()
+    carregarAchievements().catch(e =>
+        console.error("[ConquistasPage] erro ao carregar conquistas", e)
+    )
 })
 </script>
+
+<style scoped>
+.conquista-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.conquista-icone {
+    font-size: 24px;
+}
+</style>
